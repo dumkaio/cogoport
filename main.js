@@ -88,7 +88,7 @@ $(function () {
         lang: 'en',
         siteId: 1939340,
         cookiePolicyId: 56657740,
-        cookiePolicyUrl: 'https://www.cogoport.com/privacy-policy',
+        cookiePolicyUrl: 'https://www.cogoport.com/cookie-policy',
         banner: {
           acceptButtonDisplay: true,
           customizeButtonDisplay: true,
