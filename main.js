@@ -582,3 +582,215 @@ $(function () {
     });
   }
 });
+
+// port page
+$(function () {
+  if (!$('.portdata').length) {
+    return;
+  }
+  const imagesData = $('.imagesdata').text();
+  const portData = $('.portdata').text();
+
+  try {
+    let images = JSON.parse(imagesData.replace(/'/g, '"'));
+    if (images.length > 2) {
+      $('.d-port-image:eq(1)').attr('src', images[1]);
+      $('.d-port-image:eq(2)').attr('src', images[2]);
+    }
+    images = images.map((i) => ({ url: i, type: 'image' }));
+    const allImages = {
+      items: images,
+    };
+    $('.w-json').text(JSON.stringify(allImages));
+    Webflow.require('lightbox').ready();
+  } catch (error) {
+    console.log('error', error);
+  }
+
+  try {
+    let data = JSON.parse(portData);
+    console.log('data', data);
+    const menu = $('.shipping-lines');
+    menu.empty();
+    const tabCont = $('.w-tab-content');
+    tabCont.empty();
+    let i = 1;
+    for (let imp of data.import) {
+      menu.append(
+        `<a data-w-tab="Tab ${i}" class="shipping-line w-inline-block w-tab-link" role="tab">${imp.title}</a>`
+      );
+      const line = imp.data;
+      // Detention charges
+      let titles = [];
+      let detCharTable = '<div class="d-table">';
+      // generate top row
+      let dayTitles = '';
+      for (const container of line) {
+        for (let day of container.data) {
+          if (titles.indexOf(day.title) === -1) {
+            titles.push(day.title.trim());
+            dayTitles += `
+            <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+              <div>${day.title}</div>
+            </div>
+            `;
+          }
+        }
+      }
+      // titles = titles.sort();
+      detCharTable += `
+        <div class="d-table__row">
+          <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+          </div>
+          ${dayTitles}
+        </div>
+      `;
+      // generate body
+      for (const container of line) {
+        let days = ``;
+
+        for (const title of titles) {
+          const colData = container.data.find((d) => d.title.trim() === title);
+          if (colData) {
+            days += `
+            <div class="d-table__cell">
+              <div>${colData.data}</div>
+            </div>
+            `;
+          } else {
+            days += `
+            <div class="d-table__cell">
+              <div>–</div>
+            </div>
+            `;
+          }
+        }
+
+        detCharTable += `
+        <div class="d-table__row">
+          <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+            <div>${container.title}</div>
+          </div>
+          ${days}
+        </div>
+        `;
+      }
+      detCharTable += '</div>';
+
+      // Detention days
+      let detDaysTable = '<div class="d-table">';
+      detDaysTable += `
+        <div class="d-table__row">
+          <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+          </div>
+          <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+            <div>No. of days</div>
+          </div>
+        </div>
+      `;
+      detDaysTable += '</div>';
+      for (const container of line) {
+        detDaysTable += `
+        <div class="d-table__row">
+          <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+            <div>${container.title}</div>
+          </div>
+          <div class="d-table__cell">
+            <div>${container.freeDays}</div>
+          </div>
+        </div>
+        `;
+      }
+
+      tabCont.append(`
+      <div data-w-tab="Tab ${i}" class="w-tab-pane" role="tabpanel">
+        <h3 class="d-port-section__sub d-port-section__sub--mt">Detention days</h3>
+
+        ${detDaysTable}
+
+        <h3 class="d-port-section__sub d-port-section__sub--mt">Detention charges</h3>
+
+        ${detCharTable}
+        
+      </div>
+      `);
+      i++;
+    }
+
+    Webflow.require('tabs').redraw();
+    $('.shipping-line:eq(0)').click();
+
+    $('.d-table').show();
+  } catch (error) {
+    console.log('error', error);
+  }
+
+  // sidebar
+  (function () {
+    function id(text) {
+      return text
+        .toLowerCase()
+        .replace(/[^\w ]+/g, '')
+        .replace(/ +/g, '-');
+    }
+
+    $('.d-port__sidebar__item-wrap').remove();
+
+    // $('.terms-rich')
+    //   .children()
+    //   .each(function () {
+    //     if ($(this).is('ul') && $(this).prev().is('ol')) {
+    //       $(this).addClass('parent_ul');
+    //     }
+    //     if ($(this).is('ul') && $(this).prev().hasClass('parent_ul')) {
+    //       $(this).addClass('child_ul');
+    //     }
+    //     if ($(this).is('ul') && $(this).prev().hasClass('child_ul')) {
+    //       $(this).addClass('parent_ul');
+    //     }
+    //   });
+
+    // $('.child_ul').each(function () {
+    //   const par = $(this).prev();
+    //   const li = par.find('li:last');
+    //   $(this).appendTo(li);
+    // });
+
+    $('.d-port-section__h').each((h2i, h2el) => {
+      const h2id = id($(h2el).text().trim());
+      // $(h1el).after(`<div id="${h1id}" style="visibility:hidden; position: relative; top: -170px"></div>`);
+      // $('.d-port__sidebar').append(`<a class="ts__main" href="#${h1id}">${$(h1el).text().toLowerCase()}</a>`);
+      $('.d-port__sidebar').append(`
+        <div class="d-port__sidebar__item-wrap">
+          <div class="d-port__sidebar__item" href="#${h2id}">
+            ${$(h2el).text()}
+          </div>
+        </div>
+      `);
+
+      // let j = 1;
+      // $('ol li:first-child')
+      //   .find('strong:first')
+      //   .each((h3i, h3el) => {
+      //     const h3id = id($(h3el).text().trim());
+      //     $(h3el).after(
+      //       `<div id="${h3id}" style="visibility:hidden; position: relative; top: -110px; display: inline;"></div>`
+      //     );
+      //     $('.terms-sidebar').append(`<a class="ts__sub" href="#${h3id}">${$(h3el).text().replace(':', '')}</a>`);
+      //     j++;
+      //   });
+    });
+
+    $('.d-port__sidebar').show();
+
+    // if (window.location.hash) {
+    //   $(`a[href="${window.location.hash}"]`).addClass('active');
+    //   $([document.documentElement, document.body]).animate({ scrollTop: $(window.location.hash).offset().top }, 1000);
+    // }
+
+    $('.d-port__sidebar__item').on('click', (e) => {
+      $('.d-port__sidebar__item').removeClass('active');
+      $(e.target).addClass('active');
+    });
+  })();
+});
