@@ -588,6 +588,21 @@ $(function () {
   if (!$('.portdata').length) {
     return;
   }
+
+  (function () {
+    function urlify(text) {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, function (url) {
+        return '<a target="_blank" class="d-port-info__text" href="' + url + '">' + url + '</a>';
+      });
+    }
+
+    const site = $('.website').text();
+    if (site) {
+      $('.website').replaceWith(urlify(site));
+    }
+  })();
+
   const imagesData = $('.imagesdata').text();
   const portData = $('.portdata').text();
 
@@ -614,107 +629,117 @@ $(function () {
     menu.empty();
     const tabCont = $('.w-tab-content');
     tabCont.empty();
-    let i = 1;
-    for (let imp of data.import) {
-      menu.append(
-        `<a data-w-tab="Tab ${i}" class="shipping-line w-inline-block w-tab-link" role="tab">${imp.title}</a>`
-      );
-      const line = imp.data;
-      // Detention charges
-      let titles = [];
-      let detCharTable = '<div class="d-table">';
-      // generate top row
-      let dayTitles = '';
-      for (const container of line) {
-        for (let day of container.data) {
-          if (titles.indexOf(day.title) === -1) {
-            titles.push(day.title.trim());
-            dayTitles += `
+
+    if (data.detention) {
+      let i = 1;
+      if (data.detention.import) {
+        for (let imp of data.detention.import) {
+          menu.append(
+            `<a data-w-tab="Tab ${i}" class="shipping-line w-inline-block w-tab-link" role="tab">${imp.title}</a>`
+          );
+          const line = imp.data;
+          // Detention charges
+          let titles = [];
+          let detCharTable = '<div class="d-table">';
+          // generate top row
+          let dayTitles = '';
+          for (const container of line) {
+            for (let day of container.data) {
+              if (titles.indexOf(day.title) === -1) {
+                titles.push(day.title.trim());
+                dayTitles += `
+              <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+                <div>${day.title}</div>
+              </div>
+              `;
+              }
+            }
+          }
+          detCharTable += `
+          <div class="d-table__row">
             <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-              <div>${day.title}</div>
             </div>
-            `;
+            ${dayTitles}
+          </div>
+        `;
+          // generate body
+          for (const container of line) {
+            let days = ``;
+
+            for (const title of titles) {
+              const colData = container.data.find((d) => d.title.trim() === title);
+              if (colData) {
+                days += `
+              <div class="d-table__cell">
+                <div>${colData.data}</div>
+              </div>
+              `;
+              } else {
+                days += `
+              <div class="d-table__cell">
+                <div>–</div>
+              </div>
+              `;
+              }
+            }
+
+            detCharTable += `
+          <div class="d-table__row">
+            <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+              <div>${container.title}</div>
+            </div>
+            ${days}
+          </div>
+          `;
           }
+          detCharTable += '</div>';
+
+          // Detention days
+          let detDaysTable = '<div class="d-table">';
+          detDaysTable += `
+          <div class="d-table__row">
+            <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+            </div>
+            <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+              <div>No. of days</div>
+            </div>
+          </div>
+        `;
+          detDaysTable += '</div>';
+          for (const container of line) {
+            detDaysTable += `
+          <div class="d-table__row">
+            <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
+              <div>${container.title}</div>
+            </div>
+            <div class="d-table__cell">
+              <div>${container.freeDays}</div>
+            </div>
+          </div>
+          `;
+          }
+
+          tabCont.append(`
+        <div data-w-tab="Tab ${i}" class="w-tab-pane" role="tabpanel">
+          <h3 class="d-port-section__sub d-port-section__sub--mt">Detention days</h3>
+  
+          ${detDaysTable}
+  
+          <h3 class="d-port-section__sub d-port-section__sub--mt">Detention charges</h3>
+  
+          ${detCharTable}
+          
+        </div>
+        `);
+          i++;
         }
       }
-      // titles = titles.sort();
-      detCharTable += `
-        <div class="d-table__row">
-          <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-          </div>
-          ${dayTitles}
-        </div>
-      `;
-      // generate body
-      for (const container of line) {
-        let days = ``;
-
-        for (const title of titles) {
-          const colData = container.data.find((d) => d.title.trim() === title);
-          if (colData) {
-            days += `
-            <div class="d-table__cell">
-              <div>${colData.data}</div>
-            </div>
-            `;
-          } else {
-            days += `
-            <div class="d-table__cell">
-              <div>–</div>
-            </div>
-            `;
-          }
-        }
-
-        detCharTable += `
-        <div class="d-table__row">
-          <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-            <div>${container.title}</div>
-          </div>
-          ${days}
-        </div>
-        `;
+      if (data.detention.export) {
+        // todo:
       }
-      detCharTable += '</div>';
-
-      // Detention days
-      let detDaysTable = '<div class="d-table">';
-      detDaysTable += `
-        <div class="d-table__row">
-          <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-          </div>
-          <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-            <div>No. of days</div>
-          </div>
-        </div>
-      `;
-      detDaysTable += '</div>';
-      for (const container of line) {
-        detDaysTable += `
-        <div class="d-table__row">
-          <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-            <div>${container.title}</div>
-          </div>
-          <div class="d-table__cell">
-            <div>${container.freeDays}</div>
-          </div>
-        </div>
-        `;
-      }
-
-      tabCont.append(`
-      <div data-w-tab="Tab ${i}" class="w-tab-pane" role="tabpanel">
-        <h3 class="d-port-section__sub d-port-section__sub--mt">Detention days</h3>
-
-        ${detDaysTable}
-
-        <h3 class="d-port-section__sub d-port-section__sub--mt">Detention charges</h3>
-
-        ${detCharTable}
-        
-      </div>
-      `);
-      i++;
+    }
+    if (data.demurrage) {
+      // todo:
     }
 
     Webflow.require('tabs').redraw();
@@ -736,57 +761,29 @@ $(function () {
 
     $('.d-port__sidebar__item-wrap').remove();
 
-    // $('.terms-rich')
-    //   .children()
-    //   .each(function () {
-    //     if ($(this).is('ul') && $(this).prev().is('ol')) {
-    //       $(this).addClass('parent_ul');
-    //     }
-    //     if ($(this).is('ul') && $(this).prev().hasClass('parent_ul')) {
-    //       $(this).addClass('child_ul');
-    //     }
-    //     if ($(this).is('ul') && $(this).prev().hasClass('child_ul')) {
-    //       $(this).addClass('parent_ul');
-    //     }
-    //   });
-
-    // $('.child_ul').each(function () {
-    //   const par = $(this).prev();
-    //   const li = par.find('li:last');
-    //   $(this).appendTo(li);
-    // });
-
-    $('.d-port-section__h').each((h2i, h2el) => {
-      const h2id = id($(h2el).text().trim());
-      // $(h1el).after(`<div id="${h1id}" style="visibility:hidden; position: relative; top: -170px"></div>`);
-      // $('.d-port__sidebar').append(`<a class="ts__main" href="#${h1id}">${$(h1el).text().toLowerCase()}</a>`);
-      $('.d-port__sidebar').append(`
+    $('.d-port__section')
+      .not('.w-condition-invisible')
+      .find('.d-port-section__h')
+      .each((h2i, h2el) => {
+        const h2id = id($(h2el).text().trim());
+        $(h2el).after(`<div id="${h2id}" style="visibility:hidden; position: relative; top: -170px"></div>`);
+        $('.d-port__sidebar').append(`
         <div class="d-port__sidebar__item-wrap">
-          <div class="d-port__sidebar__item" href="#${h2id}">
+          <a class="d-port__sidebar__item w-inline-block" href="#${h2id}">
             ${$(h2el).text()}
-          </div>
+          </a>
         </div>
       `);
-
-      // let j = 1;
-      // $('ol li:first-child')
-      //   .find('strong:first')
-      //   .each((h3i, h3el) => {
-      //     const h3id = id($(h3el).text().trim());
-      //     $(h3el).after(
-      //       `<div id="${h3id}" style="visibility:hidden; position: relative; top: -110px; display: inline;"></div>`
-      //     );
-      //     $('.terms-sidebar').append(`<a class="ts__sub" href="#${h3id}">${$(h3el).text().replace(':', '')}</a>`);
-      //     j++;
-      //   });
-    });
+      });
 
     $('.d-port__sidebar').show();
 
-    // if (window.location.hash) {
-    //   $(`a[href="${window.location.hash}"]`).addClass('active');
-    //   $([document.documentElement, document.body]).animate({ scrollTop: $(window.location.hash).offset().top }, 1000);
-    // }
+    if (window.location.hash) {
+      $(`a[href="${window.location.hash}"]`).addClass('active');
+      $([document.documentElement, document.body]).animate({ scrollTop: $(window.location.hash).offset().top }, 1000);
+    } else {
+      $('.d-port__sidebar__item').first().addClass('active');
+    }
 
     $('.d-port__sidebar__item').on('click', (e) => {
       $('.d-port__sidebar__item').removeClass('active');
