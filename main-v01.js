@@ -79,8 +79,8 @@ $(function () {
   });
 
   // cookies
-  $.getJSON('https://ipapi.co/json/', function (data) {
-    if (data.continent_code === 'EU') {
+  // $.getJSON('https://ipapi.co/json/', function (data) {
+    // if (data.continent_code === 'EU') {
       _iub.csConfiguration = {
         consentOnContinuedBrowsing: false,
         perPurposeConsent: true,
@@ -110,8 +110,8 @@ $(function () {
         dataType: 'script',
         async: true,
       });
-    }
-  });
+    // }
+  // });
 
   // countries
   function initCountrySelect() {
