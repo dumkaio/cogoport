@@ -79,39 +79,47 @@ $(function () {
   });
 
   // cookies
-  // $.getJSON('https://ipapi.co/json/', function (data) {
-    // if (data.continent_code === 'EU') {
-      _iub.csConfiguration = {
-        consentOnContinuedBrowsing: false,
-        perPurposeConsent: true,
-        whitelabel: false,
-        lang: 'en',
-        siteId: 1939340,
-        cookiePolicyId: 56657740,
-        cookiePolicyUrl: 'https://www.cogoport.com/cookie-policy',
-        banner: {
-          acceptButtonDisplay: true,
-          customizeButtonDisplay: true,
-          acceptButtonColor: '#000000',
-          acceptButtonCaptionColor: 'white',
-          customizeButtonColor: '#f2f2f2',
-          customizeButtonCaptionColor: '#000000',
-          rejectButtonDisplay: true,
-          rejectButtonColor: '#f2f2f2',
-          rejectButtonCaptionColor: '#000000',
-          position: 'bottom',
-          textColor: '#000000',
-          backgroundColor: '#f9f9f9',
-        },
-      };
+  $.get('https://ipapi.co/continent_code/')
+    .done((data) => {
+      if (data === 'EU') {
+        showCookie();
+      }
+    })
+    .fail(() => {
+      showCookie();
+    });
 
-      $.ajax({
-        url: '//cdn.iubenda.com/cs/iubenda_cs.js',
-        dataType: 'script',
-        async: true,
-      });
-    // }
-  // });
+  function showCookie() {
+    _iub.csConfiguration = {
+      consentOnContinuedBrowsing: false,
+      perPurposeConsent: true,
+      whitelabel: false,
+      lang: 'en',
+      siteId: 1939340,
+      cookiePolicyId: 56657740,
+      cookiePolicyUrl: 'https://www.cogoport.com/cookie-policy',
+      banner: {
+        acceptButtonDisplay: true,
+        customizeButtonDisplay: true,
+        acceptButtonColor: '#000000',
+        acceptButtonCaptionColor: 'white',
+        customizeButtonColor: '#f2f2f2',
+        customizeButtonCaptionColor: '#000000',
+        rejectButtonDisplay: true,
+        rejectButtonColor: '#f2f2f2',
+        rejectButtonCaptionColor: '#000000',
+        position: 'bottom',
+        textColor: '#000000',
+        backgroundColor: '#f9f9f9',
+      },
+    };
+
+    $.ajax({
+      url: '//cdn.iubenda.com/cs/iubenda_cs.js',
+      dataType: 'script',
+      async: true,
+    });
+  }
 
   // countries
   function initCountrySelect() {
