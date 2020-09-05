@@ -79,15 +79,28 @@ $(function () {
   });
 
   // cookies
-  $.get('https://ipapi.co/continent_code/')
-    .done((data) => {
-      if (data === 'EU') {
+  if (localStorage.getItem('isEU') === 'true') {
+    showCookie();
+    redirectEu();
+  } else {
+    $.get('https://ipapi.co/continent_code/?key=RUINiHEpbJ14vZKk3qc2HLW6GjPOeAeqe8jPSM8ANgcUotyLEn')
+      .done((data) => {
+        if (data === 'EU') {
+          localStorage.setItem('isEU', true);
+          showCookie();
+          redirectEu();
+        }
+      })
+      .fail(() => {
         showCookie();
-      }
-    })
-    .fail(() => {
-      showCookie();
-    });
+      });
+  }
+
+  function redirectEu() {
+    if (location.pathname === '/') {
+      location.href = '/eu';
+    }
+  }
 
   function showCookie() {
     _iub.csConfiguration = {
@@ -411,7 +424,7 @@ $(function () {
       seconds--;
     }
   }
-  if ($('.countdown__num').length) {
+  if ($('.countdown__num').length && seconds > 0) {
     timer();
     var countdownTimer = setInterval(timer, 1000);
   }
@@ -546,8 +559,15 @@ $(function () {
   $('.sidebar__item-days a').first().addClass('active').click();
 
   // form
-  $('#Register-now').submit(function (e) {
-    $('.ew-form-success__p--link').text($('#Register-now #email').val());
+  let pageId = '';
+  try {
+    pageId = location.pathname.split('/')[2];
+  } catch (error) {}
+  $('#registration-form').prepend(
+    `<input id="form-id" type="hidden" name="${pageId}-${new Date($('.countdown-date').text()).getTime()}" />`
+  );
+  $('#registration-form').submit(function (e) {
+    $('.ew-form-success__p--link').text($('#registration-form #email').val());
   });
 
   // event/webinar internal page
@@ -631,146 +651,44 @@ $(function () {
 
   // build port data-tables
   const portData = $('.portdata').text();
-  if(portData){
+  if (portData) {
     try {
       let data = JSON.parse(portData);
-      console.log('data', data);
-      // const menu = $('.shipping-lines');
-      // menu.empty();
-      // const tabCont = $('.w-tab-content');
-      // tabCont.empty();
-  
-      if (data.detention) {
-        let i = 1;
-        // if (data.detention.import) {
-        //   for (let imp of data.detention.import) {
-        //     menu.append(
-        //       `<a data-w-tab="Tab ${i}" class="shipping-line w-inline-block w-tab-link" role="tab">${imp.title}</a>`
-        //     );
-        //     const line = imp.data;
-        //     // Detention charges
-        //     let titles = [];
-        //     let detCharTable = '<div class="d-table">';
-        //     // generate top row
-        //     let dayTitles = '';
-        //     for (const container of line) {
-        //       for (let day of container.data) {
-        //         if (titles.indexOf(day.title) === -1) {
-        //           titles.push(day.title.trim());
-        //           dayTitles += `
-        //         <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-        //           <div>${day.title}</div>
-        //         </div>
-        //         `;
-        //         }
-        //       }
-        //     }
-        //     detCharTable += `
-        //     <div class="d-table__row">
-        //       <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-        //       </div>
-        //       ${dayTitles}
-        //     </div>
-        //   `;
-        //     // generate body
-        //     for (const container of line) {
-        //       let days = ``;
-  
-        //       for (const title of titles) {
-        //         const colData = container.data.find((d) => d.title.trim() === title);
-        //         if (colData) {
-        //           days += `
-        //         <div class="d-table__cell">
-        //           <div>${colData.data}</div>
-        //         </div>
-        //         `;
-        //         } else {
-        //           days += `
-        //         <div class="d-table__cell">
-        //           <div>–</div>
-        //         </div>
-        //         `;
-        //         }
-        //       }
-  
-        //       detCharTable += `
-        //     <div class="d-table__row">
-        //       <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-        //         <div>${container.title}</div>
-        //       </div>
-        //       ${days}
-        //     </div>
-        //     `;
-        //     }
-        //     detCharTable += '</div>';
-  
-        //     // Detention days
-        //     let detDaysTable = '<div class="d-table">';
-        //     detDaysTable += `
-        //     <div class="d-table__row">
-        //       <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-        //       </div>
-        //       <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-        //         <div>No. of days</div>
-        //       </div>
-        //     </div>
-        //   `;
-        //     detDaysTable += '</div>';
-        //     for (const container of line) {
-        //       detDaysTable += `
-        //     <div class="d-table__row">
-        //       <div class="d-table__cell d-table__cell--sm d-table__cell--grey">
-        //         <div>${container.title}</div>
-        //       </div>
-        //       <div class="d-table__cell">
-        //         <div>${container.freeDays}</div>
-        //       </div>
-        //     </div>
-        //     `;
-        //     }
-  
-        //     tabCont.append(`
-        //   <div data-w-tab="Tab ${i}" class="w-tab-pane" role="tabpanel">
-        //     <h3 class="d-port-section__sub d-port-section__sub--mt">Detention days</h3>
-    
-        //     ${detDaysTable}
-    
-        //     <h3 class="d-port-section__sub d-port-section__sub--mt">Detention charges</h3>
-    
-        //     ${detCharTable}
-            
-        //   </div>
-        //   `);
-        //     i++;
-        //   }
-        // }
-        if (data.detention.export) {
-          let table = $('.free-days-export .detention-tab .d-table');
-          for (let line of data.detention.export){
-            for (let cont of line.data){
-              for(let col of cont.data){
-                table.append(`
-                <div class="d-table__row">
-                  <div class="d-table__cell d-table__cell--sm d-table__cell--grey">${line.title}</div>
-                  <div class="d-table__cell">${cont.title}</div>
-                  <div class="d-table__cell">${cont.freeDays}</div>
-                  <div class="d-table__cell">${col.title}</div>
-                  <div class="d-table__cell">${col.data}</div>
-                </div>
-                `);
-              }
+
+      function generateCols(table, tableData) {
+        for (let line of tableData) {
+          for (let cont of line.data) {
+            for (let col of cont.data) {
+              table.append(`
+              <div class="d-table__row">
+                <div class="d-table__cell d-table__cell--sm d-table__cell--grey">${line.title}</div>
+                <div class="d-table__cell">${cont.title}</div>
+                <div class="d-table__cell">${cont.freeDays}</div>
+                <div class="d-table__cell">${col.title}</div>
+                <div class="d-table__cell">${col.data}</div>
+              </div>
+              `);
             }
           }
         }
       }
-      // if (data.demurrage) {
-      //   // todo:
-      // }
-  
-      // Webflow.require('tabs').redraw();
-      // $('.shipping-line:eq(0)').click();
-  
-      // $('.d-table').show();
+
+      if (data.detention) {
+        if (data.detention.import) {
+          generateCols($('.free-days-import .detention-tab .d-table'), data.detention.import);
+        }
+        if (data.detention.export) {
+          generateCols($('.free-days-export .detention-tab .d-table'), data.detention.export);
+        }
+      }
+      if (data.demurrage) {
+        if (data.demurrage.import) {
+          generateCols($('.free-days-import .demurrage-tab .d-table'), data.demurrage.import);
+        }
+        if (data.demurrage.export) {
+          generateCols($('.free-days-export .demurrage-tab .d-table'), data.demurrage.export);
+        }
+      }
     } catch (error) {
       console.log('error', error);
     }
