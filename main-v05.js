@@ -633,20 +633,22 @@ $(function () {
 
   // build image gallery
   const imagesData = $('.imagesdata').text();
-  try {
-    let images = JSON.parse(imagesData.replace(/'/g, '"'));
-    if (images.length > 2) {
-      $('.d-port-image:eq(1)').attr('src', images[1]);
-      $('.d-port-image:eq(2)').attr('src', images[2]);
+  if (imagesData) {
+    try {
+      let images = JSON.parse(imagesData.replace(/'/g, '"'));
+      if (images.length > 2) {
+        $('.d-port-image:eq(1)').attr('src', images[1]);
+        $('.d-port-image:eq(2)').attr('src', images[2]);
+      }
+      images = images.map((i) => ({ url: i, type: 'image' }));
+      const allImages = {
+        items: images,
+      };
+      $('.w-json').text(JSON.stringify(allImages));
+      Webflow.require('lightbox').ready();
+    } catch (error) {
+      console.log('error', error);
     }
-    images = images.map((i) => ({ url: i, type: 'image' }));
-    const allImages = {
-      items: images,
-    };
-    $('.w-json').text(JSON.stringify(allImages));
-    Webflow.require('lightbox').ready();
-  } catch (error) {
-    console.log('error', error);
   }
 
   // build port data-tables
