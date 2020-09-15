@@ -563,7 +563,7 @@ $(function () {
   try {
     pageId = location.pathname.split('/')[2];
   } catch (error) {}
-  $('#registration-form').prepend(
+  $('#registration-form h2').after(
     `<input id="form-id" type="hidden" name="${pageId}-${new Date($('.countdown-date').text()).getTime()}" />`
   );
   $('#registration-form').submit(function (e) {
