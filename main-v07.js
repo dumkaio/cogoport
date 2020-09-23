@@ -1,3 +1,42 @@
+// signup
+(function () {
+  if (!$('#signup-form').length) {
+    return;
+  }
+  var BASE_URL = 'https://ajeet-api.cogoport.com';
+  var REGISTER_LEAD_ENDPOINT = BASE_URL + '/create_user_lead';
+  var FORM_SELECTOR = '#signup-form';
+  var EMAIL_SELECTOR = '#signup-email';
+  function register(values) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        window.location.href = '/signup-success?email=' + values.email;
+      }
+    };
+    xhr.open('POST', REGISTER_LEAD_ENDPOINT, true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    var data = JSON.stringify(values);
+    xhr.send(data);
+  }
+  function getValues() {
+    var inputEmailEl = document.querySelector(EMAIL_SELECTOR);
+    var values = {
+      email: inputEmailEl.value,
+      source: 'signup',
+    };
+    return values;
+  }
+
+  Webflow.push(function () {
+    $(FORM_SELECTOR).submit(function () {
+      var values = getValues();
+      register(values);
+      return false;
+    });
+  });
+})();
+
 var _iub = _iub || [];
 
 $(function () {
