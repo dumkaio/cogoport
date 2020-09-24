@@ -37,6 +37,19 @@
   });
 })();
 
+// signup confirmation
+(function () {
+  if (!$('.login__form-wrap--confirm').length) {
+    return;
+  }
+  const urlParams = new URLSearchParams(window.location.search);
+  const email = urlParams.get('email');
+  if (!email) {
+    window.location.href = '/signup';
+  }
+  $('.black-link').text(email);
+})();
+
 var _iub = _iub || [];
 
 $(function () {
